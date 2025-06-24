@@ -1,0 +1,155 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "libs/glfw",
+					"childIndexes" : 
+					[
+						2,
+						3
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-libs.glfw-Debug-d98ee0f66d0af3eff09f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "libs/glfw",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "libs/glfw/src",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-libs.glfw.src-Debug-a82772526305684790e8.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 1,
+					"source" : "libs/glfw/src",
+					"targetIndexes" : 
+					[
+						1,
+						3
+					]
+				},
+				{
+					"build" : "libs/glfw/docs",
+					"jsonFile" : "directory-libs.glfw.docs-Debug-6842506bafc5fc2c18b8.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 1,
+					"source" : "libs/glfw/docs"
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "learn_2d_opengl_3.3",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1,
+						2,
+						3
+					],
+					"name" : "GLFW",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "2dtest::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-2dtest-Debug-20c8fb60964f45463cd6.json",
+					"name" : "2dtest",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "glfw::@9d94ad66e13f8aab41f7",
+					"jsonFile" : "target-glfw-Debug-e8c289b8846213350040.json",
+					"name" : "glfw",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "uninstall::@6746522484b1c52deeae",
+					"jsonFile" : "target-uninstall-Debug-d5b07f4cb7477753ee01.json",
+					"name" : "uninstall",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "update_mappings::@9d94ad66e13f8aab41f7",
+					"jsonFile" : "target-update_mappings-Debug-ba80a33568ef5512585a.json",
+					"name" : "update_mappings",
+					"projectIndex" : 1
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/cde-sous/Documents/learn_2d_opengl_3.3/build",
+		"source" : "/home/cde-sous/Documents/learn_2d_opengl_3.3"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

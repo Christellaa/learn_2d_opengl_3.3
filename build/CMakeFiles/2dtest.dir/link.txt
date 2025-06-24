@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/2dtest.dir/src/main.cpp.o CMakeFiles/2dtest.dir/src/glad.c.o -o 2dtest  libs/glfw/src/libglfw3.a /usr/lib/x86_64-linux-gnu/librt.a -lm -ldl /usr/lib/x86_64-linux-gnu/libGLX.so /usr/lib/x86_64-linux-gnu/libOpenGL.so 
