@@ -13,6 +13,7 @@ find_package(OpenGL REQUIRED)
 add_executable(2dtest
 	src/main.cpp
 	src/glad.c
+	src/Shader.cpp
 )
 
 # Dossier où se trouvent glad/ et KHR/

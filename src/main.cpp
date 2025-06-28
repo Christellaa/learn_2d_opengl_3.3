@@ -1,4 +1,5 @@
 #include "../include/includes.hpp"
+#include "../include/Shader.hpp"
 
 void initGLFW()
 {
@@ -43,19 +44,21 @@ void processInput(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, true);
 }
 
-void renderFrame(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO)
+void renderFrame(GLFWwindow* window, Shader& shaderProgram, unsigned int VAO)
 {
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glUseProgram(shaderProgram);
+	shaderProgram.use();
 	glBindVertexArray(VAO);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	// glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
-void frameLoop(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO)
+void frameLoop(GLFWwindow* window, Shader& shaderProgram, unsigned int VAO)
 {
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
@@ -63,73 +66,6 @@ void frameLoop(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-}
-
-const char *vertexShaderSource = "#version 330 core\n"
-	"layout (location = 0) in vec3 aPos;\n"
-	"void main()\n"
-	"{\n"
-	"	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-	"}\0";
-
-const char *fragmentShaderSource = "#version 330 core\n"
-	"out vec4 fragColor;\n"
-	"void main()\n"
-	"{\n"
-	"	fragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-	"}\0";
-
-unsigned int createShader(const std::string& type)
-{
-	const char** shaderSourceRef = nullptr;
-	GLenum shaderType;
-	if (type == "vertex")
-	{
-		shaderSourceRef = &vertexShaderSource;
-		shaderType = GL_VERTEX_SHADER;
-	}
-	else if (type == "fragment")
-	{
-		shaderType = GL_FRAGMENT_SHADER;
-		shaderSourceRef = &fragmentShaderSource;
-	}
-
-	unsigned int shader = glCreateShader(shaderType);
-	glShaderSource(shader, 1, shaderSourceRef, NULL);
-	glCompileShader(shader);
-
-	int success;
-	char infoLog[512];
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(shader, 512, NULL, infoLog);
-		std::cout << "Error: " << type << " shader compilation failed\n" << infoLog << std::endl;
-	}
-	return shader;
-}
-
-unsigned int createShaderProgram()
-{
-	unsigned int vertexShader = createShader("vertex");
-	unsigned int fragmentShader = createShader("fragment");
-	unsigned int shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	int success;
-	char infoLog[512];
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		std::cout << "Error: shader program compilation failed\n" << infoLog << std::endl;
-	}
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-	return shaderProgram;
 }
 
 unsigned int createVAO()
@@ -146,7 +82,8 @@ unsigned int createVBO()
 	// pos x, y, z
     -0.5f, -0.5f, 0.0f, // bas gauche -> sommet 0
      0.5f, -0.5f, 0.0f, // bas droite -> sommet 1
-     0.0f,  0.5f, 0.0f  // haut centre -> sommet 2
+     0.5f,  0.5f, 0.0f,  // haut droite -> sommet 2
+    -0.5f,  0.5f, 0.0f  // haut gauche -> sommet 3
 	};
 
 	unsigned int VBO;
@@ -157,8 +94,21 @@ unsigned int createVBO()
 	glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 	return VBO;
+}
+
+unsigned int createEBO()
+{
+	unsigned int indexes[] = {
+		2, 1, 3, // first triangle
+		1, 0, 3 // second triangle
+	};
+
+	unsigned int EBO;
+	glGenBuffers(1, &EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexes), indexes, GL_STATIC_DRAW);
+	return EBO;
 }
 
 int main()
@@ -167,12 +117,13 @@ int main()
 	GLFWwindow* window = initWindow();
 	initGlad();
 	glViewport(0, 0, 800, 600);
-	unsigned int shaderProgram = createShaderProgram();
 	unsigned int VAO = createVAO();
 	unsigned int VBO = createVBO();
+	unsigned int EBO = createEBO();
+	Shader shaderProgram("../shaders/vertex.vs", "../shaders/fragment.fs");
+	glBindVertexArray(0);
 	frameLoop(window, shaderProgram, VAO);
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	glDeleteProgram(shaderProgram);
-	glfwTerminate();
+	glDeleteBuffers(1, &EBO);
 }
