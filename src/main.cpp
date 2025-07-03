@@ -38,25 +38,31 @@ void processInput(GLFWwindow *window) {
     glfwSetWindowShouldClose(window, true);
 }
 
-void renderFrame(GLFWwindow *window, Shader &shaderProgram, unsigned int VAO) {
+void renderFrame(GLFWwindow *window, Shader &shaderProgram, unsigned int VAO, unsigned int texture1, unsigned int texture2) {
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
+  
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texture1);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, texture2);
 
   shaderProgram.use();
   glBindVertexArray(VAO);
+
   //   glDrawArrays(GL_TRIANGLES, 0, 3);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
 }
 
-void frameLoop(GLFWwindow *window, Shader &shaderProgram, unsigned int VAO) {
+void frameLoop(GLFWwindow *window, Shader &shaderProgram, unsigned int VAO, unsigned int texture1, unsigned int texture2) {
   //   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   while (!glfwWindowShouldClose(window)) {
     processInput(window);
-    renderFrame(window, shaderProgram, VAO);
+    renderFrame(window, shaderProgram, VAO, texture1, texture2);
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
@@ -71,11 +77,11 @@ unsigned int createVAO() {
 
 unsigned int createVBO() {
   float vertices[] = {
-      // pos x, y, z // colors // texture coords
+      // pos x, y, z      // colors         // texture coords
       -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bas gauche
-      0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bas droite
-      -0.5f, 0.5f,  0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, // haut gauche
-      0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f  // haut droite
+      0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 2.0f, 0.0f, // bas droite
+      -0.5f, 0.5f,  0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 2.0f, // haut gauche
+      0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 0.0f, 2.0f, 2.0f  // haut droite
   };
 
   unsigned int VBO;
@@ -95,31 +101,6 @@ unsigned int createVBO() {
   return VBO;
 }
 
-void createTexture() {
-
-  unsigned int texture;
-  glGenTextures(1, &texture);
-  glBindTexture(GL_TEXTURE_2D, texture);
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                  GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  stbi_set_flip_vertically_on_load(true);
-  int width, height, nrChannels;
-  unsigned char *data =
-      stbi_load("../textures/slime.png", &width, &height, &nrChannels, 0);
-  if (data) {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-  } else
-    std::cout << "Failed to load texture" << std::endl;
-  stbi_image_free(data);
-}
-
 unsigned int createEBO() {
   unsigned int indexes[] = {
       3, 1, 2, // first triangle
@@ -134,18 +115,49 @@ unsigned int createEBO() {
   return EBO;
 }
 
+unsigned int createTexture(const char *path) {
+
+  unsigned int texture;
+  glGenTextures(1, &texture);
+  glBindTexture(GL_TEXTURE_2D, texture);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  stbi_set_flip_vertically_on_load(true);
+  int width, height, nrChannels;
+  unsigned char *data =
+      stbi_load(path, &width, &height, &nrChannels, 0);
+  if (data) {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+  } else
+    std::cout << "Failed to load texture" << std::endl;
+  stbi_image_free(data);
+  return texture;
+}
+
 int main() {
   initGLFW();
   GLFWwindow *window = initWindow();
   initGlad();
   glViewport(0, 0, 800, 600);
+  Shader shaderProgram("shaders/vertex.vs", "shaders/fragment.fs");
   unsigned int VAO = createVAO();
   unsigned int VBO = createVBO();
-  createTexture();
   unsigned int EBO = createEBO();
-  Shader shaderProgram("../shaders/vertex.vs", "../shaders/fragment.fs");
   glBindVertexArray(0);
-  frameLoop(window, shaderProgram, VAO);
+
+  unsigned int slime = createTexture("textures/slime.png");
+  unsigned int face = createTexture("textures/awesomeface.png");
+  shaderProgram.use();
+  shaderProgram.setUniformInt("slime", 0);
+  shaderProgram.setUniformInt("face", 1);
+
+  frameLoop(window, shaderProgram, VAO, slime, face);
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
   glDeleteBuffers(1, &EBO);

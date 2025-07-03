@@ -21,3 +21,9 @@ target_include_directories(2dtest PRIVATE include)
 
 # Lien avec GLFW et OpenGL
 target_link_libraries(2dtest PRIVATE glfw OpenGL::GL)
+
+file(GLOB SHADERS "${CMAKE_SOURCE_DIR}/shaders/*")
+file(COPY ${SHADERS} DESTINATION ${CMAKE_BINARY_DIR}/shaders)
+
+file(GLOB TEXTURES "${CMAKE_SOURCE_DIR}/textures/*")
+file(COPY ${TEXTURES} DESTINATION ${CMAKE_BINARY_DIR}/textures)

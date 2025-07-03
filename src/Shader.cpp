@@ -87,3 +87,7 @@ unsigned int Shader::createShaderProgram(unsigned int vertex, unsigned int fragm
 void Shader::use() {
 	glUseProgram(this->_programId);
 }
+
+void Shader::setUniformInt(const std::string& uniformName, int value) {
+	glUniform1i(glGetUniformLocation(this->_programId, uniformName.c_str()), value);
+}
